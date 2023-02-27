@@ -509,3 +509,61 @@ my $rah_results = search_firstname ($ARGV[0] || '', [
 
 say pp($rah_results);
 =cut
+
+=begin
+#ex6q9
+#converting array of array ref to hashref of hash
+#my sol
+sub isbn_catalog {
+    my %hash;
+    my ($a) = @_ ;
+   my @array = @{@$a[0]};
+   
+   #print(scalar(@array));
+    for(my $i=0;$i<3; $i++){
+    my $num = scalar(@{@$a[$i]}) - 1;
+    $hash{ @{@$a[$i]}[1] } = {
+    publication_year  => @{@$a[$i]}[0],
+    title    => @{@$a[$i]}[2],
+   authors => [@{@$a[$i]}[3 .. $num]],
+};
+}
+    return \%hash;
+    # IMPLEMENT ME!
+}
+
+my $rh_catalog = isbn_catalog([ [ 2002, "978-0-8001-9676-9", "Matilda", "Danny DeVito", "Joshua Levinson", "Liccy Dahl", "Martin Bregman", "Nicholas Kazan", "Roald Dahl", "Robin Swicord", ], 
+[ 1998, "978-0-8001-0215-9", "Glory", "Freddie Fields", "P.K. Fields", "Pieter Jan Brugge", ], 
+[ 1998, "978-0-8001-2901-9", "The Whole Town's Talking", "Joseph H. August", "John Ford", ], ])
+;
+
+say pp($rh_catalog);
+
+
+#mentor sol
+sub isbn_catalog {
+    my $ra_catalog = shift;
+   
+    my %isbn_catalog;
+   
+    foreach my $ra_row (@$ra_catalog) {
+        my @row = @$ra_row;
+       
+        $isbn_catalog{$row[1]} = {
+            publication_year => $row[0],
+            title            => $row[2],
+            authors          => [@row[3..$#row]],
+        };
+    } 
+   
+   return \%isbn_catalog;
+}
+
+my $rh_catalog = isbn_catalog([
+    ['1998', '978-0-8001-0215-9', 'Glory', 'Freddie Fields', 'P.K. Fields', 'Pieter Jan Brugge'],
+    ['1998', '978-0-8001-2901-9','The Whole Town\'s Talking', 'Joseph H. August','John Ford']
+])
+;
+
+say pp($rh_catalog);
+=cut
