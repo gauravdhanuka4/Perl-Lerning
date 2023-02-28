@@ -531,15 +531,11 @@ sub isbn_catalog {
     return \%hash;
     # IMPLEMENT ME!
 }
-
 my $rh_catalog = isbn_catalog([ [ 2002, "978-0-8001-9676-9", "Matilda", "Danny DeVito", "Joshua Levinson", "Liccy Dahl", "Martin Bregman", "Nicholas Kazan", "Roald Dahl", "Robin Swicord", ], 
 [ 1998, "978-0-8001-0215-9", "Glory", "Freddie Fields", "P.K. Fields", "Pieter Jan Brugge", ], 
 [ 1998, "978-0-8001-2901-9", "The Whole Town's Talking", "Joseph H. August", "John Ford", ], ])
 ;
-
 say pp($rh_catalog);
-
-
 #mentor sol
 sub isbn_catalog {
     my $ra_catalog = shift;
@@ -558,12 +554,363 @@ sub isbn_catalog {
    
    return \%isbn_catalog;
 }
-
 my $rh_catalog = isbn_catalog([
     ['1998', '978-0-8001-0215-9', 'Glory', 'Freddie Fields', 'P.K. Fields', 'Pieter Jan Brugge'],
     ['1998', '978-0-8001-2901-9','The Whole Town\'s Talking', 'Joseph H. August','John Ford']
 ])
 ;
-
 say pp($rh_catalog);
+=cut
+
+=begin
+#Ex6Q10
+sub greet_friend {
+    my %friend = (
+        age     => 5,
+        reading => 'Encyclopedia Britannica',
+        @_
+    );
+
+    return unless $friend{name};
+
+    my $response = "Hi $friend{name}! I'm ".
+        ($friend{age}+1).
+        " and I read $friend{reading} ages ago. Totally boring.";
+    delete $friend{age};
+    delete $friend{name};
+    delete $friend{reading};
+    return $response unless keys(%friend);
+
+    $response .= ' But I like ';
+    $response .= join(' and ',
+        map { $friend{$_}.' as a '.$_ } keys (%friend)).'.';
+    return $response;
+}
+
+say greet_friend(
+    name    => 'Dazza',
+    age     => 61,
+    reading => 'Shake Milk',
+    hobby   => 'Panda'
+);
+=cut
+
+=begin
+#Ex6q11
+#My SOL
+sub greet_friend {
+    my %hashi;
+    # FIXME determine whether the argument is a hash or a hashref
+    if (ref($_[0]) eq "HASH")
+    {
+   %hashi = %{$_[0]};
+    }
+    else {
+        %hashi = @_;
+        #print(pp %hashi);
+        }
+   #my $hashref = $_[0];
+   #print  %$hashref; 
+   #print(%hashi);
+    my $rh_friend = {
+        age     => 5,
+        reading => 'Encyclopedia Britannica',
+        %hashi
+    };
+    return unless $rh_friend->{name};
+    
+    my $age = $rh_friend->{age} + 1;
+    my $sentence = "Hi $rh_friend->{name}! I'm ${age} and I read $rh_friend->{reading} ages ago. Totally boring.";
+    delete $rh_friend->{age};
+    delete $rh_friend->{reading};
+    delete $rh_friend->{name};
+    if (keys (%$rh_friend)) {
+        $sentence .= ' But I like '.join(' and ',
+            map { $rh_friend->{$_}.' as a '.$_ } keys (%$rh_friend)).'.';
+    }
+    return $sentence;
+}
+
+# Already works for this
+
+
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+
+# FIXME so this works too
+say greet_friend({
+    name    => 'Dazza',
+    age     => 61,
+    reading => 'Shake Milk' ,
+    hobby   => 'Panda',
+    diet    => 'Vegan',
+});
+
+
+#mentor sol
+sub greet_friend {
+    my $rh_friend = {
+        age     => 5,
+        reading => 'Encyclopedia Britannica',
+        (ref ($_[0] ) ? %{$_[0]} : @_)
+    };
+    return unless $rh_friend->{name};
+    
+    my $age = $rh_friend->{age} + 1;
+    my $sentence = "Hi $rh_friend->{name}! I'm ${age} and I read $rh_friend->{reading} ages ago. Totally boring.";
+    delete $rh_friend->{age};
+    delete $rh_friend->{reading};
+    delete $rh_friend->{name};
+    if (keys (%$rh_friend)) {
+        $sentence .= ' But I like '.join(' and ',
+            map { $rh_friend->{$_}.' as a '.$_ } keys (%$rh_friend)).'.';
+    }
+    return $sentence;
+}
+
+# Already works for this
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+# FIXME so this works too
+say greet_friend({
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+});
+=cut
+
+
+=begin
+#e=Ex6q12
+#MY SOL
+sub greet_friend {
+    my $rh_friend = {
+        age     => 5,
+        reading => 'Encyclopedia Britannica',
+        ref($_[0]) ? %{$_[0]} : @_
+    };
+    return unless $rh_friend->{name};
+    
+    my $age = $rh_friend->{age} + 1;
+    
+    my $sentence = "Hi $rh_friend->{name}! I'm ${age} and I read ";
+    
+    if (ref($rh_friend->{reading}) eq "ARRAY"){
+        $sentence .= "@{$rh_friend->{reading}}[0] AND @{$rh_friend->{reading}}[1] AND @{$rh_friend->{reading}}[2] ages ago. Totally boring.";
+    }
+    else{
+        $sentence .= "$rh_friend->{reading} ages ago. Totally boring.";
+    }
+    
+    delete $rh_friend->{age};
+    delete $rh_friend->{reading};
+    delete $rh_friend->{name};
+    if (keys (%$rh_friend)) {
+        $sentence .= ' But I like '.join(' and ',
+            map { $rh_friend->{$_}.' as a '.$_ } keys (%$rh_friend)).'.';
+    }
+    return $sentence;
+}
+
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+say greet_friend({
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+});
+
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+# FIXME Get this working too
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => [
+        'Shakespeare',
+        'The Unbearable Lightness of Being',
+        'honilulu',
+    ] ,
+);
+
+#mENTOR SOL
+sub greet_friend {
+    my $rh_friend = {
+        age     => 5,
+        reading => 'Encyclopedia Britannica',
+        ref($_[0]) ? %{$_[0]} : @_
+    };
+    return unless $rh_friend->{name};
+    
+    my $age = $rh_friend->{age} + 1;
+    my $reading = ref($rh_friend->{reading}) ? join(' AND ', @{$rh_friend->{reading}}) : $rh_friend->{reading};
+    my $sentence = "Hi $rh_friend->{name}! I'm ${age} and I read ${reading} ages ago. Totally boring.";
+    delete $rh_friend->{age};
+    delete $rh_friend->{reading};
+    delete $rh_friend->{name};
+    if (keys (%$rh_friend)) {
+        $sentence .= ' But I like '.join(' and ',
+            map { $rh_friend->{$_}.' as a '.$_ } keys (%$rh_friend)).'.';
+    }
+    return $sentence;
+}
+
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+say greet_friend({
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+});
+
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => 'Shakespeare' ,
+    hobby   => 'Pac Man',
+    diet    => 'Vegan',
+);
+
+# FIXME Get this working too
+say greet_friend(
+    name    => 'Daniela',
+    age     => 16,
+    reading => [
+        'Shakespeare',
+        'The Unbearable Lightness of Being'
+    ] ,
+);
+=cut
+
+=begin
+#SUBROUTINE REFRENCES AS NAMED PARAMETERS
+get( instrument => sub { return "violin"; } );
+my $inst = &{$args->{instrument}}(); # and get "violin".
+get instrument => sub { return "violin"; };
+get '/airport' => sub {
+   # generate some html here...
+};
+
+
+
+=begin
+#EX7Q1
+#my sol
+my $msg ;
+my $test_string = $ARGV[0];
+for(my $i = 1; $i < scalar(@ARGV); $i++){
+    if($ARGV[$i] =~ m/$test_string/){
+        $msg .= uc($ARGV[$i]);
+        $msg .= " ";
+    }
+    else{
+        $msg .= $ARGV[$i];
+        $msg .= " ";
+        
+    }
+}
+print($msg);
+
+#mentor sol
+my $match = shift @ARGV;
+my @newargs = map { $_ =~ m/$match/ ? uc($_) : $_ } @ARGV;
+
+say join(' ',@newargs);
+=cut
+
+
+=begin
+#EX7Q3
+#MYSOL
+open(my $fh, "<", $ARGV[1]);
+my $uc = uc($ARGV[0]);
+while(<$fh>){
+    if($_ =~ s/$ARGV[0]/$uc/g) {
+        print($_);
+    }
+}
+close($fh);
+
+#Mentor sol
+my $str = $ARGV[0];
+my $ucstr = uc($str);
+my $filename = $ARGV[1];
+
+open(my $fh, '<', $filename);
+while (my $line = <$fh>) {
+    next unless $line =~ m/$str/;
+
+    $line =~ s/$str/$ucstr/g;
+    print $line;
+}
+close $fh;
+=cut
+
+
+=begin
+#EX7Q4
+#MY SOL
+open(my $fh, "<", $ARGV[1]);
+
+my @test;
+while(<$fh>){
+    @test = split /\s/, $_;
+    for(my $i =0; $i<scalar(@test); $i++){
+        #print($test[$i]." ");
+        my $uc = uc($test[$i]);
+        if( $test[$i] =~ m/$ARGV[0]/g ){
+            $test[$i] = uc($test[$i]);}
+        
+    }
+    say(join(" ", @test));
+}
+close($fh);
+
+#MENTOR SOL
+my $str = $ARGV[0];
+my $filename = $ARGV[1];
+open(my $fh, '<', $filename);
+
+while (my $line = <$fh>) {
+    my $newline = join(' ', map { $_ =~ m/$str/ ? uc($_) : $_ } split(/ /,$line));
+    print $newline;
+}
+close $fh;
+
 =cut
