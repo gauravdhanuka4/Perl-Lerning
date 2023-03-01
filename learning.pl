@@ -914,3 +914,219 @@ while (my $line = <$fh>) {
 close $fh;
 
 =cut
+
+
+=begin
+#Ex7Q5
+#MY SOL
+open(my $fh, "<", $ARGV[2]);
+
+while(<$fh>){
+    $_ =~ s/($ARGV[0].*$ARGV[1])/\U$1/;
+    print($_);
+}
+close($fh);
+
+#MENTOR SOL
+my ($begin, $end, $filename) = @ARGV;
+
+open (my $fh, '<', $filename);
+while (my $line = <$fh>) {
+    $line =~ s/($begin.*$end)/\U$1\E/;
+    print $line;
+}
+close $fh;
+
+=cut
+
+=begin
+#Ex7Q6
+#MYSOL
+open(my $fh, "<", $ARGV[2]);
+
+while(<$fh>){
+    $_ =~ s/($ARGV[0].*?$ARGV[1])/\U$1/g;
+    print($_);
+}
+close($fh);
+
+#MENTOR SOL
+my ($begin, $end, $filename) = @ARGV;
+
+open (my $fh, '<', $filename);
+while (my $line = <$fh>) {
+    $line =~ s/($begin.*?$end)/\U$1\E/g;
+    print $line;
+}
+close $fh;
+=cut
+
+=begin
+#EX7Q7
+#MYSOL
+my $test = $ARGV[0];
+my $num = @ARGV;
+
+my @matches = grep { !m/$test/ } @ARGV[1 .. ($num -1)];
+
+submit(@matches);
+
+#MENTOR SOL
+my $str = shift(@ARGV);
+
+my @antimatch = grep { !/$str/ } @ARGV;
+print pp(@antimatch);
+submit(@antimatch);
+=cut
+
+=begin
+#Ex7Q8 AIrport
+#MY SOL
+my ($infile, $outfile) = @ARGV;
+
+open ($fh_in, "<:encoding(utf8)", $infile) or die "Error opening input file: $!";
+open ($fh_out, ">:encoding(utf8)", $outfile) or die "Error opening output file: $!";
+
+my $csv = Text::CSV->new( { binary => 1, eol => $/ } );
+
+
+my $ra_colnames = $csv->getline( $fh_in );
+my $iata_idx = -1;
+foreach my $idx (@{$ra_colnames}) {
+    if ($ra_colnames->[$idx] eq 'iata_code') {
+        $iata_idx = $idx;
+        last;
+    }
+}
+if ($iata_idx == -1) {
+    die "iata_code column not found in input file";
+}
+
+
+$csv->print($fh_out, $ra_colnames);
+while (my $line = $csv->getline($fh_in)) {
+    if ($line->[$iata_idx]) {
+        $csv->print($fh_out, $line);
+    }
+}
+
+close $fh_in;
+close $fh_out;
+=cut
+
+=begin
+#EX7Q8
+#MY SOL
+use Getopt::Long;
+
+my $filename = '/home/student/perl-basic/topic-07/iata_airports.csv';
+my $number = 1;
+my $matching;
+my $word;
+my $latitude;
+my $longitude;
+
+GetOptions(
+    'filename=s' => \$filename,
+    'number=i' => \$number,
+    'matching=s' => \$matching,
+    'word' => \$word,
+    'latitude=f' => \$latitude,
+    'longitude=f' => \$longitude,
+) or die "Error in command line arguments\n";
+
+
+if ($matching) {
+  say "Up to $number airports matching $matching in $filename:";
+}
+elsif ($latitude && $longitude) {
+  say "Up to $number airports near [$latitude, $longitude] in $filename:"
+}
+else {
+  say "Must have at least --matching, or --latitude and --longitude as arguments";
+}
+=cut
+
+
+=begin 
+#EX7Q11
+#SOl
+
+my $filename = '/home/student/perl-basic/topic-07/iata_airports.csv';
+my $number = 1;
+my $matching;
+my $word;
+my $latitude;
+my $longitude;
+
+GetOptions(
+    'filename=s' => \$filename,
+    'number=i' => \$number,
+    'matching=s' => \$matching,
+    'word' => \$word,
+    'latitude=f' => \$latitude,
+    'longitude=f' => \$longitude,
+) or die "Error in command line arguments\n";
+
+
+sub parse_airports {
+    my $filename = $_[0];
+    open (my $fh_in, "<:encoding(utf8)", $filename) or die "Error opening input file: $!";
+    my $csv = Text::CSV->new( { binary => 1, eol => $/ } );
+    my $ra_colnames = $csv->getline( $fh_in );
+    $csv->column_names(@$ra_colnames);
+    my $ra_airports = $csv->getline_hr_all($fh_in);
+    return($ra_airports);
+}
+  # FILL THIS IN
+
+
+sub get_name_matching_airports {
+  # FILL THIS IN
+  my %args = @_;
+
+  my $ra_airports = $args{airports};
+  my $matching_string = $args{matching_string};
+  my $word = $args{word};
+
+  my $count = 0;
+  my @matching_airports;
+
+  foreach my $rh_airport (@$ra_airports) {
+    my $name = $rh_airport->{name};
+
+    my $match_regex = $matching_string;
+    $match_regex = "\\b$match_regex\\b" if $word;
+
+    if ($name =~ /$match_regex/i) {
+      push @matching_airports, $rh_airport;
+      if((defined $args{number} )&& scalar(@matching_airports) >= $args{number}){
+      last;}
+    }
+  }
+
+  return \@matching_airports;
+
+}
+
+
+my $rah_airports = parse_airports($filename);
+my $rah_airports_found ;
+my $word1; # In preparation for the next exercise
+
+if ($matching) {
+  say "Up to $number airports matching $matching in $filename:"; 
+  $rah_airports_found = get_name_matching_airports(
+    airports        => $rah_airports,
+    matching_string => $matching,
+    word            => $word1,
+  );
+}
+elsif ($latitude && $longitude) {
+  say "Up to $number airports near [$latitude, $longitude] in $filename:"
+}
+else {
+  say "Must have at least --matching, or --latitude and --longitude as arguments";
+}
+
+print pp($rah_airports_found);
